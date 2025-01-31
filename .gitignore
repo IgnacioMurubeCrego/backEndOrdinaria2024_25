@@ -1,0 +1,4 @@
+# Environment variables
+.env 
+# Editor specific files
+.vscode
