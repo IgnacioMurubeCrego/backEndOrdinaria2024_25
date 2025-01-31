@@ -36,12 +36,12 @@ export const resolvers = {
 			return `${parent.address}, ${parent.city}, ${parent.country}`;
 		},
 		datetime: async (parent: RestaurantModel): Promise<string> => {
-			const timezone = parent.timezone;
-			const url = "https://api.api-ninjas.com/v1/worldtime?timezone=" + timezone;
-			const API_KEY = Deno.env.get("API_KEY");
+			const timezone: string = parent.timezone;
+			const url: string = "https://api.api-ninjas.com/v1/worldtime?timezone=" + timezone;
+			const API_KEY: string | undefined = Deno.env.get("API_KEY");
 			if (!API_KEY) throw new GraphQLError("API_KEY required for API Ninjas request.");
 
-			const datetimeData = await fetch(url, {
+			const datetimeData: Response = await fetch(url, {
 				headers: {
 					"X-Api-Key": API_KEY,
 				},
@@ -50,17 +50,17 @@ export const resolvers = {
 			if (datetimeData.status !== 200) throw new GraphQLError("Error in WorldTime API request.");
 
 			const data: APIworldtime = await datetimeData.json();
-			const datetime = data.datetime;
+			const datetime: string = data.datetime;
 			return datetime;
 		},
 		temp: async (parent: RestaurantModel): Promise<string> => {
-			const latitude = parent.latitude;
-			const longitude = parent.longitude;
-			const url = `https://api.api-ninjas.com/v1/weather?lat=${latitude}&lon=${longitude}`;
-			const API_KEY = Deno.env.get("API_KEY");
+			const latitude: number = parent.latitude;
+			const longitude: number = parent.longitude;
+			const url: string = `https://api.api-ninjas.com/v1/weather?lat=${latitude}&lon=${longitude}`;
+			const API_KEY: string | undefined = Deno.env.get("API_KEY");
 			if (!API_KEY) throw new GraphQLError("API_KEY required for API Ninjas request.");
 
-			const weatherData = await fetch(url, {
+			const weatherData: Response = await fetch(url, {
 				headers: {
 					"X-Api-Key": API_KEY,
 				},
@@ -69,7 +69,7 @@ export const resolvers = {
 			if (weatherData.status !== 200) throw new GraphQLError("Error in Weather API request.");
 
 			const data: APIweather = await weatherData.json();
-			const temp = data.temp.toString();
+			const temp: string = data.temp.toString();
 			return temp;
 		},
 	},
@@ -79,7 +79,7 @@ export const resolvers = {
 			args: QueryGetRestaurantArgs,
 			ctx: Context
 		): Promise<RestaurantModel | null> => {
-			const id = args.id;
+			const id: string = args.id;
 			const restaurant: RestaurantModel | null = await ctx.RestaurantCollection.findOne({ _id: new ObjectId(id) });
 			return restaurant;
 		},
@@ -88,7 +88,7 @@ export const resolvers = {
 			args: QueryGetRestaurantsArgs,
 			ctx: Context
 		): Promise<RestaurantModel[]> => {
-			const city = args.city;
+			const city: string = args.city;
 			const restaurantsInCity: RestaurantModel[] = await ctx.RestaurantCollection.find({ city }).toArray();
 			return restaurantsInCity;
 		},
@@ -101,14 +101,14 @@ export const resolvers = {
 		): Promise<RestaurantModel> => {
 			const { name, address, city, phone } = args;
 
-			const url = "https://api.api-ninjas.com/v1/validatephone?number=" + phone;
-			const API_KEY = Deno.env.get("API_KEY");
+			const url: string = "https://api.api-ninjas.com/v1/validatephone?number=" + phone;
+			const API_KEY: string | undefined = Deno.env.get("API_KEY");
 			if (!API_KEY) throw new GraphQLError("API_KEY required for API Ninjas request.");
 
-			const phoneExists = await ctx.RestaurantCollection.countDocuments({ phone });
+			const phoneExists: number = await ctx.RestaurantCollection.countDocuments({ phone });
 			if (phoneExists > 0) throw new GraphQLError("Phone already registered in DB");
 
-			const valPhoneData = await fetch(url, {
+			const valPhoneData: Response = await fetch(url, {
 				headers: {
 					"X-Api-Key": API_KEY,
 				},
@@ -119,11 +119,11 @@ export const resolvers = {
 			const data: APIvalidatephone = await valPhoneData.json();
 			if (!data.is_valid) throw new GraphQLError("Phone number format is not valid");
 
-			const timezone = data.timezones[0];
-			const country = data.country;
+			const timezone: string = data.timezones[0];
+			const country: string = data.country;
 
-			const geocodingURL = "https://api.api-ninjas.com/v1/geocoding?city=" + city;
-			const geocodingData = await fetch(geocodingURL, {
+			const geocodingURL: string = "https://api.api-ninjas.com/v1/geocoding?city=" + city;
+			const geocodingData: Response = await fetch(geocodingURL, {
 				headers: {
 					"X-Api-Key": API_KEY,
 				},
@@ -132,13 +132,9 @@ export const resolvers = {
 			if (geocodingData.status !== 200) throw new GraphQLError("Error in GeoCoding API request.");
 
 			const geoData: APIgeocoding[] = await geocodingData.json();
-			console.log(geoData[0]);
 
-			const latitude = geoData[0].latitude;
-			const longitude = geoData[0].longitude;
-
-			console.log(`Latitude:${latitude}`);
-			console.log(`Longitude:${longitude}`);
+			const latitude: number = geoData[0].latitude;
+			const longitude: number = geoData[0].longitude;
 
 			const { insertedId } = await ctx.RestaurantCollection.insertOne({
 				name,
@@ -164,7 +160,7 @@ export const resolvers = {
 			};
 		},
 		deleteRestaurant: async (_parent: unknown, args: MutationDeleteRestaurantArgs, ctx: Context): Promise<boolean> => {
-			const id = args.id;
+			const id: string = args.id;
 			const { deletedCount } = await ctx.RestaurantCollection.deleteOne({ _id: new ObjectId(id) });
 			return !(deletedCount === 0);
 		},
