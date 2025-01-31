@@ -2,6 +2,7 @@ import { Collection, ObjectId } from "mongodb";
 import { APIgeocoding, APIweather, APIworldtime, RestaurantModel } from "./types.ts";
 import { GraphQLError } from "graphql";
 import { APIvalidatephone } from "./types.ts";
+import { parentPort } from "node:worker_threads";
 
 type Context = {
 	RestaurantCollection: Collection<RestaurantModel>;
@@ -28,8 +29,11 @@ type MutationDeleteRestaurantArgs = {
 
 export const resolvers = {
 	Restaurant: {
-		id: (parent: RestaurantModel) => {
-			return parent._id?.toString();
+		id: (parent: RestaurantModel): string => {
+			return parent._id!.toString();
+		},
+		address: (parent: RestaurantModel): string => {
+			return `${parent.address}, ${parent.city}, ${parent.country}`;
 		},
 		datetime: async (parent: RestaurantModel): Promise<string> => {
 			const timezone = parent.timezone;
@@ -116,6 +120,7 @@ export const resolvers = {
 			if (!data.is_valid) throw new GraphQLError("Phone number format is not valid");
 
 			const timezone = data.timezones[0];
+			const country = data.country;
 
 			const geocodingURL = "https://api.api-ninjas.com/v1/geocoding?city=" + city;
 			const geocodingData = await fetch(geocodingURL, {
@@ -140,6 +145,7 @@ export const resolvers = {
 				address,
 				phone,
 				city,
+				country,
 				timezone,
 				latitude,
 				longitude,
@@ -151,6 +157,7 @@ export const resolvers = {
 				address,
 				phone,
 				city,
+				country,
 				timezone,
 				latitude,
 				longitude,

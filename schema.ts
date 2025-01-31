@@ -4,7 +4,6 @@ type Restaurant{
   id: ID!
 	name: String!
 	address: String!
-	city: String!
 	phone: String!
   temp: String!
   datetime: String!
@@ -19,4 +18,4 @@ type Mutation{
   addRestaurant(name: String!, address: String!, city: String!, phone: String!): Restaurant! 
   deleteRestaurant(id: ID!): Boolean!
 }
-`
+`;

@@ -4,6 +4,7 @@ export type RestaurantModel = OptionalId<{
 	name: string;
 	address: string;
 	city: string;
+	country: string;
 	phone: string;
 	timezone: string;
 	latitude: number;
@@ -14,7 +15,6 @@ export type Restaurant = {
 	id: string;
 	name: string;
 	address: string;
-	city: string;
 	phone: string;
 	temp: string;
 	datetime: string;
@@ -23,6 +23,7 @@ export type Restaurant = {
 //https://api.api-ninjas.com/v1/validatephone?number=+12065550100
 export type APIvalidatephone = {
 	is_valid: boolean;
+	country: string;
 	timezones: string[];
 };
 
